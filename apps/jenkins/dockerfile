@@ -1,0 +1,50 @@
+FROM ubuntu
+
+ARG JENKINS_VERSION=2.375.2
+ENV JENKINS_URL=https://get.jenkins.io/war-stable/${JENKINS_VERSION}/jenkins.war
+
+# Install Java
+RUN apt-get update && apt-get install -y openjdk-11-jre wget curl
+
+# Check if Jenkins dir exists
+RUN if [ ! -d /opt/jenkins ]; then \
+        mkdir /opt/jenkins; \
+    fi
+
+# Download and install Jenkins
+RUN if [ ! -f /opt/jenkins/jenkins.war ]; then \
+        wget $JENKINS_URL --directory-prefix=/opt/jenkins; \
+    fi
+
+# Create plugins directory
+RUN if [ ! -d /opt/jenkins/plugins ]; then \
+        mkdir /opt/jenkins/plugins; \
+    fi
+
+# Copy plugins.txt file to the container
+COPY configs/plugins.txt /opt/jenkins/plugins.txt
+
+# RUN while read plugin; do curl -L https://updates.jenkins.io/latest/${plugin}.hpi -o /opt/jenkins/plugins/${plugin}.hpi; done < /opt/jenkins/plugins.txt
+# RUN while read plugin; do curl -L https://updates.jenkins.io/latest/${plugin} -o /opt/jenkins/plugins/${plugin}; done < /opt/jenkins/plugins.txt
+# RUN chmod +x /opt/jenkins/plugins/*
+
+RUN PLUGINS=$(cat /opt/jenkins/plugins.txt) && \
+    for PLUGIN in $PLUGINS; do \
+        echo "Downloading $PLUGIN..."; \
+        HPI="$(echo $PLUGIN | cut -d"." -f1).hpi"; \
+        curl -L https://updates.jenkins.io/latest/$HPI --output /opt/jenkins/plugins/$PLUGIN; \
+        chmod +x /opt/jenkins/plugins/*; \
+    done
+
+# Set owner for the Jenkins directory
+RUN chown -R 1000:1000 /opt/jenkins
+
+RUN if [ ! -d /etc/systemd/system/jenkins.service.d ]; then \
+        mkdir /etc/systemd/system/jenkins.service.d; \
+    fi
+
+COPY configs/jenkins.override.conf /etc/systemd/system/jenkins.service.d/
+
+# Start Jenkins as a service
+
+CMD ["java", "-jar", "-Djenkins.install.runSetupWizard=false", "/opt/jenkins/jenkins.war"]
