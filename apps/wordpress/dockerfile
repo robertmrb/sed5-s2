@@ -1,0 +1,12 @@
+FROM ubuntu
+
+RUN apt-get update && apt-get install -y nginx php-fpm php-mysql php-json php-opcache php-gd php-curl php-mbstring php-xml php-cli mysql-client sed wget tar
+
+RUN wget https://wordpress.org/latest.tar.gz && \
+    tar -xzvf latest.tar.gz && \
+    rm -rf /var/www/html/* && \
+    mkdir -p /var/www/html/wordpress && \
+    mv wordpress/* /var/www/html/wordpress && \
+    chown -R www-data:www-data /var/www/html/wordpress && \
+    chmod -R 755 /var/www/html/wordpress/ && \
+    rm -rf wordpress latest.tar.gz
