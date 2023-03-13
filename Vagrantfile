@@ -119,14 +119,24 @@ $install_jenkins = <<SCRIPT
 
 echo "-----> Install Jenkins docker container"
 
-if [[ $(sudo docker images -q robertmrb/jenkins:v1) ]]; then
-  echo "Image already exists. Starting container..."
-  sudo docker run -d -p 8080:8080 --name jenkins robertmrb/jenkins:v1
+# if [[ $(sudo docker inspect robertmrb/jenkins:v1 >/dev/null 2>&1) ]]; then
+#   echo "Image already exists. Starting container..."
+#   sudo docker run -d -p 8080:8080 --name jenkins robertmrb/jenkins:v1
+# else
+#   echo "Pulling image..."
+#   sudo docker pull robertmrb/jenkins:v1
+#   echo "Starting container..."
+#   sudo docker run -d -p 8080:8080 --name jenkins robertmrb/jenkins:v1
+# fi
+
+if sudo docker container inspect jenkins >/dev/null 2>&1; then
+  echo "Container already exists. Starting container..."
+  sudo docker container start jenkins
 else
   echo "Pulling image..."
   sudo docker pull robertmrb/jenkins:v1
   echo "Starting container..."
-  sudo docker run -d -p 8080:8080 --name jenkins robertmrb/jenkins:v1
+  sudo docker container run -d -p 8080:8080 --name jenkins robertmrb/jenkins:v1
 fi
 
 SCRIPT

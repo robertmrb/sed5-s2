@@ -1,12 +1,38 @@
 FROM ubuntu
 
-RUN apt-get update && apt-get install -y nginx php-fpm php-mysql php-json php-opcache php-gd php-curl php-mbstring php-xml php-cli mysql-client sed wget tar
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y nginx php-fpm php-mysql php-json php-opcache php-gd php-curl php-mbstring php-xml php-cli mysql-client sed wget tar curl
 
 RUN wget https://wordpress.org/latest.tar.gz && \
     tar -xzvf latest.tar.gz && \
-    rm -rf /var/www/html/* && \
-    mkdir -p /var/www/html/wordpress && \
-    mv wordpress/* /var/www/html/wordpress && \
-    chown -R www-data:www-data /var/www/html/wordpress && \
-    chmod -R 755 /var/www/html/wordpress/ && \
-    rm -rf wordpress latest.tar.gz
+    rm -rf /var/www/html/*
+
+RUN if [ ! -d /var/www/html/wordpress ]; then \
+        mkdir -p /var/www/html/wordpress; \
+        mv wordpress/* /var/www/html/wordpress; \
+        chown -R www-data:www-data /var/www/html/wordpress; \
+        chmod -R 755 /var/www/html/wordpress/; \
+        rm -rf wordpress latest.tar.gz; \
+    fi
+
+RUN if [ ! -d /var/www/html/wordpress/wp-content/uploads ]; then \
+        mkdir -p /var/www/html/wordpress/wp-content/uploads; \
+        chmod 777 /var/www/html/wordpress/wp-content/uploads; \
+        chown www-data:www-data /var/www/html/wordpress/wp-content/uploads; \
+    fi
+
+RUN cd /var/www/html/wordpress && \
+    cp wp-config-sample.php wp-config.php && \
+    wget -O /var/www/html/wordpress/wp-keys.php https://api.wordpress.org/secret-key/1.1/salt/ && \
+    sed -e 's/database_name_here/wordpress/g' -e 's/username_here/wp_user/g' -e 's/password_here/Password#1/g' -e 's/localhost/my-sql/g' -i.bak /var/www/html/wordpress/wp-config.php && \
+    sed -i '/#@-/r /var/www/html/wordpress/wp-keys.php' /var/www/html/wordpress/wp-config.php && \
+    chown www-data:www-data /var/www/html/wordpress/wp-config.php && \
+    chmod 640 /var/www/html/wordpress/wp-config.php && \
+    chmod -R 777 /var/www/html/wordpress
+
+COPY configs/confignginx /etc/nginx/sites-available/default
+COPY configs/entrypoint.sh /
+
+
+ENTRYPOINT [ "bash","/entrypoint.sh" ]
