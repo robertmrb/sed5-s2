@@ -1,0 +1,34 @@
+FROM ubuntu:latest
+
+RUN apt-get update && apt-get install -y gnupg
+
+RUN groupadd -r mysql && useradd -r -g mysql mysql
+
+ENV DEBIAN_FRONTEND noninteractive
+
+RUN apt-get update \
+    && apt-get install -y lsb-release wget gnupg \
+    && wget -qO- https://dev.mysql.com/get/mysql-apt-config_0.8.19-1_all.deb > mysql-apt-config.deb \
+    && dpkg -i mysql-apt-config.deb \
+    && apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 467B942D3A79BD29 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends mysql-server \
+    && rm mysql-apt-config.deb
+
+
+RUN echo "{ \
+    #Set MySQL root password for silent installation
+    echo mysql-community-server mysql-community-server/root-pass password ''; \
+    echo mysql-community-server mysql-community-server/re-root-poss password ''\
+    }" | debconf-set-selections \
+    && mkdir -p /var/lib/mysql /var/run/mysqld \
+    && chown -R mysql:mysql /var/lib/mysql /var/run/mysqld \
+    && chmod 777 /var/run/mysqld
+
+RUN sed -i 's/bind-address/#bind-address/' /etc/mysql/mysql.conf.d/mysqld.cnf
+
+VOLUME /var/lib/mysql
+
+EXPOSE 3306
+
+CMD ["mysqld","--user","mysql"]

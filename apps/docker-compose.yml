@@ -1,0 +1,61 @@
+version: '3'
+services:
+
+  lb:
+    image: sed5-s2/loadbalancer:0.0.1
+    depends_on:
+      - wordpress1
+      - wordpress2
+    container_name: loadbalancer
+    build:
+      context: .
+      dockerfile: loadbalancer/dockerfile
+    ports:
+      - 80:80
+    restart: always
+
+  wordpress1:
+    depends_on:
+      - mysql
+    image: sed5-s2/wordpress1:0.0.1
+    container_name: wordpress1
+    hostname: wordpress1
+    build:
+      context: .
+      dockerfile: wordpress/dockerfile
+    ports:
+      - "8081:80"
+    volumes:
+      - wordpress:/var/www/html/wordpress
+
+  wordpress2:
+    depends_on:
+      - mysql
+    image: sed5-s2/wordpress2:0.0.1
+    container_name: wordpress2
+    hostname: wordpress2
+    build:
+      context: .
+      dockerfile: wordpress/dockerfile
+    ports:
+      - "8082:80"
+    volumes:
+      - wordpress:/var/www/html/wordpress
+
+  mysql:
+    image: sed5-s2/mysql:0.0.1
+    container_name: mysql
+    build:
+      context: .
+      dockerfile: mysql/dockerfile
+    ports:
+      - 3306:3306
+
+    volumes: 
+      - mysql:/var/lib/mysql
+  
+volumes:
+  mysql:
+    driver: local
+  wordpress:
+    driver: local
