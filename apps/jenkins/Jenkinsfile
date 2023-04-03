@@ -7,12 +7,51 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'beta', url: 'https://github.com/robertmrb/sed5-s2.git'
+                git branch: 'alpha', url: 'https://github.com/robertmrb/sed5-s2.git'
             }
         }
-        stage('Build images') {
+        stage('Copy Config Files loadblancer') {
             steps {
-                sh 'docker build --no-cache --progress=plain --tag sed5-s2/loadbalancer:0.0.2 -f ./apps/loadbalancer/dockerfile .'
+                sh 'mkdir -p config-files'
+                sh 'cp -r ./apps/loadbalancer/configs ./config-files/'
+            }
+        }
+        stage('Build images loadblancer') {
+            steps {
+                sh 'docker build --tag sed5-s2/loadbalancer:0.0.2 -f ./apps/loadbalancer/dockerfile ./config-files'
+            }
+        }
+        stage('Copy Config Files mysql') {
+            steps {
+                sh 'mkdir -p config-files'
+                sh 'cp -r ./apps/mysql/configs ./config-files/'
+            }
+        }
+        stage('Build images mysql') {
+            steps {
+                sh 'docker build --tag sed5-s2/mysql:0.0.2 -f ./apps/mysql/dockerfile ./config-files'
+            }
+        }
+        stage('Copy Config Files wordpress1') {
+            steps {
+                sh 'mkdir -p config-files'
+                sh 'cp -r ./apps/wordpress/configs ./config-files/'
+            }
+        }
+        stage('Build images wordpress1') {
+            steps {
+                sh 'docker build --tag sed5-s2/wordpress:0.0.2 -f ./apps/wordpress/dockerfile ./config-files'
+            }
+        }
+        stage('Copy Config Files wordpress2') {
+            steps {
+                sh 'mkdir -p config-files'
+                sh 'cp -r ./apps/wordpress/configs ./config-files/'
+            }
+        }
+        stage('Build images wordpress2') {
+            steps {
+                sh 'docker build --tag sed5-s2/wordpress:0.0.3 -f ./apps/wordpress/dockerfile ./config-files'
             }
         }
     }
