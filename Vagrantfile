@@ -155,7 +155,7 @@ Vagrant.configure("2") do |config|
     ci.vm.provision "shell", :inline => $os_packages_update
     ci.vm.provision "shell", :inline => $user_setup
     ci.vm.provision "shell", :inline => $install_docker_engine
-    ci.vm.provision "shell", :inline => $install_jenkins
+#    ci.vm.provision "shell", :inline => $install_jenkins
   end
   config.vm.define "environment" do |en|
     en.vm.hostname = "environment"

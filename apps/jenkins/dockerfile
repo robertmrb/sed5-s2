@@ -1,50 +1,187 @@
+# FROM ubuntu
+
+# ARG JENKINS_VERSION=2.375.2
+# ENV JENKINS_URL=https://get.jenkins.io/war-stable/${JENKINS_VERSION}/jenkins.war
+
+# # Install Java
+# RUN apt-get update && apt-get install -y openjdk-11-jre wget curl git && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Check if Jenkins dir exists
+# RUN mkdir /opt/jenkins && \
+#     wget $JENKINS_URL --directory-prefix=/opt/jenkins && \
+#     mkdir /opt/jenkins/plugins
+
+# # Copy plugins.txt file to the container
+# COPY configs/plugins.txt /opt/jenkins/plugins.txt
+
+# RUN plugins=$(cat /opt/jenkins/plugins.txt) && \
+#     for plugin in $plugins; do \
+#         curl --retry 10 --retry-delay 1 -sSL \
+#         "https://updates.jenkins.io/latest/${plugin}.hpi" \
+#         -o "/opt/jenkins/plugins/${plugin}.hpi"; \
+#     done
+
+
+# ENV JENKINS_HOME=/opt/jenkins
+
+# #RUN mv /opt/jenkins/plugins/* /root/.jenkins/plugins/
+
+# # Download and install Jenkins plugins using jenkins-plugin-cli
+# # RUN wget -q -O /opt/jenkins/jenkins-plugin-cli https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.1.3/jenkins-plugin-manager-2.1.3.jar && \
+# #     chmod +x /opt/jenkins/jenkins-plugin-cli && \
+# #     java -jar /opt/jenkins/jenkins-plugin-cli --plugin-file /opt/jenkins/plugins.txt
+
+# # RUN wget -q -O /usr/local/bin/install-plugins.sh https://github.com/jenkinsci/docker/raw/master/install-plugins.sh && \
+# #     chmod +x /usr/local/bin/install-plugins.sh && \
+# #     /usr/local/bin/install-plugins.sh < /opt/jenkins/plugins.txt
+
+# # RUN while read plugin; do curl -L https://updates.jenkins.io/latest/${plugin}.hpi -o /opt/jenkins/plugins/${plugin}.hpi; done < /opt/jenkins/plugins.txt
+# # RUN while read plugin; do curl -L https://updates.jenkins.io/latest/${plugin} -o /opt/jenkins/plugins/${plugin}; done < /opt/jenkins/plugins.txt
+# # RUN chmod +x /opt/jenkins/plugins/*
+
+# # RUN PLUGINS=$(cat /opt/jenkins/plugins.txt) && \
+# #     for PLUGIN in $PLUGINS; do \
+# #         echo "Downloading $PLUGIN..."; \
+# #         HPI="$(echo $PLUGIN | cut -d"." -f1).hpi"; \
+# #         curl -L https://updates.jenkins.io/latest/$HPI --output /opt/jenkins/plugins/$PLUGIN; \
+# #         chmod +x /opt/jenkins/plugins/*; \
+# #     done
+
+# # Set owner for the Jenkins directory
+# RUN chown -R 1000:1000 /opt/jenkins
+
+# # RUN if [ ! -d /etc/systemd/system/jenkins.service.d ]; then \
+# #         mkdir /etc/systemd/system/jenkins.service.d; \
+# #     fi
+
+# # COPY configs/jenkins.override.conf /etc/systemd/system/jenkins.service.d/
+
+# # Start Jenkins as a service
+
+# CMD ["java", "-jar", "-Djenkins.install.runSetupWizard=false", "/opt/jenkins/jenkins.war"]
+
+# FROM ubuntu
+
+# ARG JENKINS_VERSION=2.375.2
+# ENV JENKINS_URL=https://get.jenkins.io/war-stable/${JENKINS_VERSION}/jenkins.war
+
+# # Install Java
+# RUN apt-get update && apt-get install -y openjdk-11-jre wget curl git && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Check if Jenkins dir exists
+# RUN mkdir /opt/jenkins && \
+#     wget $JENKINS_URL --directory-prefix=/opt/jenkins && \
+#     mkdir /opt/jenkins/plugins && \
+#     chown -R 1000:1000 /opt/jenkins
+
+# # Copy plugins.txt file to the container
+# COPY configs/plugins.txt /opt/jenkins/plugins.txt
+
+# # Install plugins
+# RUN plugins=$(cat /opt/jenkins/plugins.txt) && \
+#     for plugin in $plugins; do \
+#         curl -L "https://updates.jenkins.io/latest/${plugin}.hpi" -o "/opt/jenkins/plugins/${plugin}.hpi"; \
+#     done && \
+#     chown -R 1000:1000 /opt/jenkins/plugins
+
+# ENV JENKINS_HOME=/opt/jenkins
+# USER 1000
+
+# CMD ["java", "-jar", "-Djenkins.install.runSetupWizard=false", "/opt/jenkins/jenkins.war"]
+
+
+# FROM ubuntu
+
+# ARG JENKINS_VERSION=2.375.2
+# ENV JENKINS_URL=https://get.jenkins.io/war-stable/${JENKINS_VERSION}/jenkins.war
+
+# # Install Docker
+
+# RUN apt-get update && \
+#     apt-get install -y software-properties-common && \
+#     apt-get clean && \
+#     rm -rf /var/lib/apt/lists/*
+    
+# RUN apt-get update && apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release && \
+#     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add - && \
+#     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
+#     apt-get update && apt-get install -y docker-ce && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Install Java
+# RUN apt-get update && apt-get install -y openjdk-11-jre wget curl git && \
+#     rm -rf /var/lib/apt/lists/*
+
+# # Check if Jenkins dir exists
+# RUN mkdir /opt/jenkins && \
+#     wget $JENKINS_URL --directory-prefix=/opt/jenkins && \
+#     mkdir /opt/jenkins/plugins && \
+#     chown -R 1000:1000 /opt/jenkins
+
+# # Copy plugins.txt file to the container
+# COPY configs/plugins.txt /opt/jenkins/plugins.txt
+
+# # Install plugins
+# RUN plugins=$(cat /opt/jenkins/plugins.txt) && \
+#     for plugin in $plugins; do \
+#         curl -L "https://updates.jenkins.io/latest/${plugin}.hpi" -o "/opt/jenkins/plugins/${plugin}.hpi"; \
+#     done && \
+#     chown -R 1000:1000 /opt/jenkins/plugins
+
+# ENV JENKINS_HOME=/opt/jenkins
+# USER jenkins
+# USER 1000
+# EXPOSE 8080
+# # RUN usermod -aG docker jenkins
+
+# CMD ["sh", "-c", "dockerd", "java -jar -Djenkins.install.runSetupWizard=false /opt/jenkins/jenkins.war"]
+
 FROM ubuntu
 
 ARG JENKINS_VERSION=2.375.2
 ENV JENKINS_URL=https://get.jenkins.io/war-stable/${JENKINS_VERSION}/jenkins.war
 
-# Install Java
-RUN apt-get update && apt-get install -y openjdk-11-jre wget curl
+# Instalăm dependințele necesare pentru a instala Jenkins
+RUN apt-get update && apt-get install -y wget openjdk-11-jre curl git
 
-# Check if Jenkins dir exists
-RUN if [ ! -d /opt/jenkins ]; then \
-        mkdir /opt/jenkins; \
-    fi
-
-# Download and install Jenkins
-RUN if [ ! -f /opt/jenkins/jenkins.war ]; then \
-        wget $JENKINS_URL --directory-prefix=/opt/jenkins; \
-    fi
-
-# Create plugins directory
-RUN if [ ! -d /opt/jenkins/plugins ]; then \
-        mkdir /opt/jenkins/plugins; \
-    fi
+RUN wget -q $JENKINS_URL -P /opt/jenkins && \
+    mkdir /opt/jenkins/plugins
 
 # Copy plugins.txt file to the container
 COPY configs/plugins.txt /opt/jenkins/plugins.txt
 
-# RUN while read plugin; do curl -L https://updates.jenkins.io/latest/${plugin}.hpi -o /opt/jenkins/plugins/${plugin}.hpi; done < /opt/jenkins/plugins.txt
-# RUN while read plugin; do curl -L https://updates.jenkins.io/latest/${plugin} -o /opt/jenkins/plugins/${plugin}; done < /opt/jenkins/plugins.txt
-# RUN chmod +x /opt/jenkins/plugins/*
-
-RUN PLUGINS=$(cat /opt/jenkins/plugins.txt) && \
-    for PLUGIN in $PLUGINS; do \
-        echo "Downloading $PLUGIN..."; \
-        HPI="$(echo $PLUGIN | cut -d"." -f1).hpi"; \
-        curl -L https://updates.jenkins.io/latest/$HPI --output /opt/jenkins/plugins/$PLUGIN; \
-        chmod +x /opt/jenkins/plugins/*; \
+# Install plugins
+RUN plugins=$(cat /opt/jenkins/plugins.txt) && \
+    for plugin in $plugins; do \
+        curl -L "https://updates.jenkins.io/latest/${plugin}.hpi" -o "/opt/jenkins/plugins/${plugin}.hpi"; \
     done
 
-# Set owner for the Jenkins directory
-RUN chown -R 1000:1000 /opt/jenkins
+# Instalăm Docker în interiorul containerului
+RUN apt-get install -y apt-transport-https ca-certificates curl gnupg lsb-release
+RUN curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+RUN echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+RUN apt-get update && apt-get install -y docker-ce-cli
 
-RUN if [ ! -d /etc/systemd/system/jenkins.service.d ]; then \
-        mkdir /etc/systemd/system/jenkins.service.d; \
-    fi
+# Adăugăm utilizatorul jenkins
+RUN useradd -m -d /home/jenkins -s /bin/bash jenkins
+RUN chown -R jenkins:jenkins /opt/jenkins
 
-COPY configs/jenkins.override.conf /etc/systemd/system/jenkins.service.d/
+# Creăm grupul docker
+RUN groupadd docker
 
-# Start Jenkins as a service
+# Adăugăm utilizatorul jenkins la grupul docker
+RUN usermod -aG docker jenkins
+RUN usermod -aG root jenkins
+
+# Setăm utilizatorul implicit ca jenkins
+USER jenkins
+
+# Specificăm directorul de lucru
+ENV JENKINS_HOME=/opt/jenkins
+WORKDIR /opt/jenkins
 
 CMD ["java", "-jar", "-Djenkins.install.runSetupWizard=false", "/opt/jenkins/jenkins.war"]
