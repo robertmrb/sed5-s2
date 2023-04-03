@@ -1,0 +1,60 @@
+Started by user unknown or anonymous
+[Pipeline] Start of Pipeline
+[Pipeline] node
+Running on Jenkins in /opt/jenkins/workspace/test1
+[Pipeline] {
+[Pipeline] isUnix
+[Pipeline] withEnv
+[Pipeline] {
+[Pipeline] sh
++ docker inspect -f . sed5-s2/jenkins:0.0.1
+.
+[Pipeline] }
+[Pipeline] // withEnv
+[Pipeline] withDockerContainer
+Jenkins seems to be running inside container 7a475188a6f326bb92aefba17dc5f3b4d73faf9d49bd5c4fb577bd78505365f0
+but /opt/jenkins/workspace/test1 could not be found among [/var/run/docker.sock]
+but /opt/jenkins/workspace/test1@tmp could not be found among [/var/run/docker.sock]
+$ docker run -t -d -u 0:0 -w /opt/jenkins/workspace/test1 -v /opt/jenkins/workspace/test1:/opt/jenkins/workspace/test1:rw,z -v /opt/jenkins/workspace/test1@tmp:/opt/jenkins/workspace/test1@tmp:rw,z -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** -e ******** sed5-s2/jenkins:0.0.1 cat
+$ docker top cb666fc48d999ee9e4d02526911a477a30d1db5406b38179a7460bab428e1dec -eo pid,comm
+[Pipeline] {
+[Pipeline] stage
+[Pipeline] { (Clone Repository)
+[Pipeline] git
+The recommended git tool is: NONE
+No credentials specified
+Warning: JENKINS-30600: special launcher org.jenkinsci.plugins.docker.workflow.WithContainerStep$Decorator$1@670edb4; decorates hudson.Launcher$LocalLauncher@8b7030a will be ignored (a typical symptom is the Git executable not being run inside a designated container)
+ > git rev-parse --resolve-git-dir /opt/jenkins/workspace/test1/.git # timeout=10
+Fetching changes from the remote Git repository
+ > git config remote.origin.url https://github.com/robertmrb/sed5-s2.git # timeout=10
+Fetching upstream changes from https://github.com/robertmrb/sed5-s2.git
+ > git --version # timeout=10
+ > git --version # 'git version 2.34.1'
+ > git fetch --tags --force --progress -- https://github.com/robertmrb/sed5-s2.git +refs/heads/*:refs/remotes/origin/* # timeout=10
+ > git rev-parse refs/remotes/origin/beta^{commit} # timeout=10
+Checking out Revision aafca24f6ac56d497a3146bd7e3ebac8170681f0 (refs/remotes/origin/beta)
+ > git config core.sparsecheckout # timeout=10
+ > git checkout -f aafca24f6ac56d497a3146bd7e3ebac8170681f0 # timeout=10
+ > git branch -a -v --no-abbrev # timeout=10
+ > git branch -D beta # timeout=10
+ > git checkout -b beta aafca24f6ac56d497a3146bd7e3ebac8170681f0 # timeout=10
+Commit message: "Beta v2"
+ > git rev-list --no-walk aafca24f6ac56d497a3146bd7e3ebac8170681f0 # timeout=10
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] stage
+[Pipeline] { (Build images)
+[Pipeline] sh
+process apparently never started in /opt/jenkins/workspace/test1@tmp/durable-9794113a
+(running Jenkins temporarily with -Dorg.jenkinsci.plugins.durabletask.BourneShellScript.LAUNCH_DIAGNOSTICS=true might make the problem clearer)
+[Pipeline] }
+[Pipeline] // stage
+[Pipeline] }
+$ docker stop --time=1 cb666fc48d999ee9e4d02526911a477a30d1db5406b38179a7460bab428e1dec
+$ docker rm -f --volumes cb666fc48d999ee9e4d02526911a477a30d1db5406b38179a7460bab428e1dec
+[Pipeline] // withDockerContainer
+[Pipeline] }
+[Pipeline] // node
+[Pipeline] End of Pipeline
+ERROR: script returned exit code -2
+Finished: FAILURE
