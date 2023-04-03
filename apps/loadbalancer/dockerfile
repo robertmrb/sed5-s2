@@ -2,7 +2,7 @@ FROM ubuntu
 
 RUN apt update && apt install nginx -y
 
-COPY configs/lb /etc/nginx/sites-available/default
+COPY ./configs/lb /etc/nginx/sites-available/default
 
 ENTRYPOINT [ "nginx", "-g", "daemon off;" ]
 
