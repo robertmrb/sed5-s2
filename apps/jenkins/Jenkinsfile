@@ -10,20 +10,9 @@ pipeline {
                 git branch: 'beta', url: 'https://github.com/robertmrb/sed5-s2.git'
             }
         }
-        stage('Build Docker Image') {
+        stage('Build images') {
             steps {
-                script {
-                    docker.build("loadbalancer:0.0.2", "./apps/loadbalancer")
-                }
-            }
-        }
-        stage('Push Docker Image') {
-            steps {
-                script {
-                    withDockerRegistry(credentialsId: '3f1823a2-6ec9-4d97-9725-0f0670d25b9c', url: 'https://index.docker.io/v1/') {
-                         docker.build('robertmrb/loadbalancer:0.0.2').push()
-                    }
-                }
+                sh 'docker build --no-cache --progress=plain --tag sed5-s2/loadbalancer:0.0.2 -f ./apps/loadbalancer/dockerfile .'
             }
         }
     }
