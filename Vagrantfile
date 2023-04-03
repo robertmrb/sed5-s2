@@ -136,7 +136,7 @@ else
   echo "Pulling image..."
   sudo docker pull robertmrb/jenkins:v1
   echo "Starting container..."
-  sudo docker container run -d -p 8080:8080 --name jenkins robertmrb/jenkins:v1
+  sudo docker run -d -p 8080:8080 -p 50000:50000 --privileged --user root --name jenkins2 -v /var/run/docker.sock:/var/run/docker.sock -v /home/cicd:/opt/jenkins/workspace sed5-s2/jenkins:0.0.1
 fi
 
 SCRIPT
